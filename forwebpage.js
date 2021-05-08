@@ -1,5 +1,7 @@
 var TextInput;
 
+var hello = "This worked!";
+
 if(typeof TextInput === "undefined"){
     TextInput = class{
         static mouseX = 0;
