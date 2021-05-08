@@ -65,7 +65,6 @@ class TextInput{
         this.insertingAt = 0;
         this.highlighting = false;
         this.arrowKeyHighlightingOrigin = false;// The first item is always the origin point, the second item is always the point being moved.
-        this.processingPaste = false;
         this.undos = [];
         this.undoIndex = 0;
         this.undoneValue = false;
@@ -105,8 +104,6 @@ class TextInput{
         this.setStyle(style);
         
         document.addEventListener("keydown",e => {
-            if(this.processingPaste){
-                return;
             }
             if(e.key === "Shift"){
                 TextInput.holdingShift = true;
@@ -131,9 +128,6 @@ class TextInput{
             }
         });
         document.addEventListener("mousedown",e => {
-            if(this.processingPaste){
-                return;
-            }
             TextInput.mouseClicked = true;
             TextInput.mousePressed = true;
         });
@@ -141,9 +135,6 @@ class TextInput{
             TextInput.mousePressed = false;
         });
         document.addEventListener("mousemove",e => {
-            if(this.processingPaste){
-                return;
-            }
             TextInput.mouseMoved = true;
         });
     }
@@ -325,27 +316,14 @@ class TextInput{
                         this.highlighting = [0,this.value.length];
                         this.arrowKeyHighlightingOrigin = [0,this.value.length];
                     }else if(key === "c" && this.highlighting){
-                        navigator.clipboard.writeText(this.value.substring(this.highlighting[0],this.highlighting[1]));
+                        alert("Khan Academy blocks access to Clipboard. Cutting text is only available off of KA.\nPlease visit https://cutt.ly/FbYS8Gd for a full page of information about why and how KA blocks the use of Clipboard.");
                         this.oncopy();
                     }else if(key === "x" && this.highlighting){
-                        navigator.clipboard.writeText(this.value.substring(this.highlighting[0],this.highlighting[1]));
-                        this.insertingAt = this.highlighting[0];
-                        this.setValue(this.value.substring(0,this.highlighting[0]) + this.value.substring(this.highlighting[1],this.value.length));
-                        this.highlighting = false;
+                        alert("Khan Academy blocks access to Clipboard. Cutting text is only available off of KA.\nPlease visit https://cutt.ly/FbYS8Gd for a full page of information about why and how KA blocks the use of Clipboard.");
                         this.oncopy();
                     }else if(key === "v"){
-                        navigator.clipboard.readText().then(text => {
-                            if(this.highlighting){
-                                this.setValue(this.value.substring(0,this.highlighting[0]) + this.value.substring(this.highlighting[1],this.value.length));
-                                this.insertingAt = this.highlighting[0];
-                                this.highlighting = false;
-                            }
-                            this.value = this.value.substring(0,this.insertingAt) + text + this.value.substring(this.insertingAt,this.value.length);
-                            this.insertingAt += text.length;
-                            this.processingPaste = false;
-                            this.onpaste(true);
-                        },err => {this.onpaste(false);this.processingPaste = false;});
-                        this.processingPaste = true;
+                        alert("Khan Academy blocks access to Clipboard. Cutting text is only available off of KA.\nPlease visit https://cutt.ly/FbYS8Gd for a full page of information about why and how KA blocks the use of Clipboard.");
+                        this.onpaste();
                     }else if(key === "z"){
                         this.undo();
                     }else if(key === "y"){
