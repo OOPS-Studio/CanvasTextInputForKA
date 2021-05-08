@@ -1,2 +1,3 @@
 # CanvasTextInputForKA
-This repository contains two JS files which can be used to import my HTML Canvas Text Input library into both KA Webpages and KA PJS Programs.
+
+I will update this once I have more information to put here. It will eventually include information about the library itself, information about each of the 3 versions respectively, and information about how to use this library and documentation.
