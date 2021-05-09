@@ -327,13 +327,13 @@ if(typeof TextInput === "undefined"){
                             this.highlighting = [0,this.value.length];
                             this.arrowKeyHighlightingOrigin = [0,this.value.length];
                         }else if(key === "c" && this.highlighting){
-                            alert("Khan Academy blocks access to Clipboard. Cutting text is only available off of KA.\nPlease visit https://cutt.ly/FbYS8Gd for a full page of information about why and how KA blocks the use of Clipboard.");
+                            alert("Khan Academy blocks access to Clipboard. Copying text is only available off of KA.\nPlease visit https://cutt.ly/FbYS8Gd for a full page of information about why and how KA blocks the use of Clipboard.");
                             this.oncopy();
                         }else if(key === "x" && this.highlighting){
                             alert("Khan Academy blocks access to Clipboard. Cutting text is only available off of KA.\nPlease visit https://cutt.ly/FbYS8Gd for a full page of information about why and how KA blocks the use of Clipboard.");
                             this.oncopy();
                         }else if(key === "v"){
-                            alert("Khan Academy blocks access to Clipboard. Cutting text is only available off of KA.\nPlease visit https://cutt.ly/FbYS8Gd for a full page of information about why and how KA blocks the use of Clipboard.");
+                            alert("Khan Academy blocks access to Clipboard. Pasting text is only available off of KA.\nPlease visit https://cutt.ly/FbYS8Gd for a full page of information about why and how KA blocks the use of Clipboard.");
                             this.onpaste();
                         }else if(key === "z"){
                             this.undo();
