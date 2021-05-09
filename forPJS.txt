@@ -451,7 +451,11 @@
                 this.blinkCounter = 0;
             }
             if(this.blinkCounter < 50){
-                this.ctx.strokeStyle = "black";
+                if(this.selected){
+                    this.ctx.strokeStyle = this.solveSelectedStyle("textColor");
+                }else{
+                    this.ctx.strokeStyle = this.style.textColor;
+                }
                 this.ctx.lineWidth = 1;
                 this.ctx.beginPath();
                 var w = this.ctx.measureText(this.value.substring(0,this.insertingAt)).width;
