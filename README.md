@@ -13,4 +13,4 @@ More information can be found at these links:
 * [Complete Canvas Text Input documentation for PJS](https://nowhereyet.com)
 
 
-I also have a version of this library for use off of KA, which can be found [here](https://github.com/OOPS-Studio/CanvasTextInput) along with an entire page of info and a complete documentation.
+I also have a version of this library for use off of KA, which can be found [here](https://github.com/OOPS-Studio/CanvasTextInput), along with an entire page of info and a complete documentation.
