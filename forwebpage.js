@@ -11,15 +11,13 @@ if(typeof TextInput === "undefined"){
         static mouseMoved = false;
         static holdingShift = false;
         static holdingControl = false;
-        static giveMouseData(x,y){
-            TextInput.mouseX = x;
-            TextInput.mouseY = y;
-        }
         static requestingHover = false;
+        static frameCounter = 0;
         static nextFrame(){
             TextInput.requestingHover = false;
             TextInput.mouseClicked = false;
             TextInput.mouseMoved = false;
+            TextInput.frameCounter++;
         }
         static IGNORE_LIST = ["Control","Alt","Shift","Enter","Escape","CapsLock","Meta","PageUp","PageDown","F1","F2","F3","F4","F5","F6","F7","F8","F9","F10","F11","F12","Home","End","Insert","Tab"];
         static restrain(val,min,max){
@@ -54,16 +52,18 @@ if(typeof TextInput === "undefined"){
             ctx.arcTo(x,y,x + r1,y,r1);
             ctx.closePath();
         }
-        constructor(canvas,ctx,x,y,style = {}){
-            this.canvas = canvas;
-            this.ctx = ctx;
+        constructor(canvas,x,y,style = {}){
+            this.ctx = canvas.getContext("2d");
 
             this.x = x;
             this.y = y;
             this.width = 150;
             this.height = 0;
             this.textSize = 15;// 15 is default
-
+            
+            this.mouseX = 0;
+            this.mouseY = 0;
+            
             this.selected = false;
             this.value = "";
             this.blinkCounter = 0;
@@ -77,7 +77,7 @@ if(typeof TextInput === "undefined"){
             this.scroll = 0;
             this.alignScroll = undefined;
 
-            this.placeholder = "Testing";
+            this.placeholder = "";
             this.highlightAllTextWhenSelected = false;
 
             this.style = {
@@ -115,6 +115,9 @@ if(typeof TextInput === "undefined"){
                 if(e.key === "Control"){
                     TextInput.holdingControl = true;
                 }
+                if(this.processingPaste || this.lastRendered < TextInput.frameCounter - 1){
+                    return;
+                }
                 this.handleKeypress(e.key);
                 if(this.selected){
                     this.onkeypress(e.key);
@@ -127,7 +130,7 @@ if(typeof TextInput === "undefined"){
                 if(e.key === "Control"){
                     TextInput.holdingControl = false;
                 }
-                if(this.selected){
+                if(this.selected && this.lastRendered < TextInput.frameCounter - 1){
                     this.onkeyrelease(e.key);
                 }
             });
@@ -140,6 +143,12 @@ if(typeof TextInput === "undefined"){
             });
             document.addEventListener("mousemove",e => {
                 TextInput.mouseMoved = true;
+            });
+            
+            canvas.addEventListener("mousemove",e => {
+                let rect = e.target.getBoundingClientRect();
+                this.mouseX = Math.round(e.clientX - rect.left)
+                this.mouseY = Math.round(e.clientY - rect.top);
             });
         }
         setValue(newValue){
@@ -352,19 +361,12 @@ if(typeof TextInput === "undefined"){
             return(this.style.onSelect[style] === false ? this.style[style] : this.style.onSelect[style]);
         }
         render(){
+            if(this.lastRendered < TextInput.frameCounter - 1){
+                this.selected = false;
+            }
+            this.lastRendered = TextInput.frameCounter;
+            
             this.height = this.textSize * 1.1;
-
-            /*
-            If not highlighting:
-                Move left if insertingAt is to the left
-                Move right if insertingAt is to the right
-            If highlighting by dragging mouse:
-                Move left if highlighting[0] is to the left and if mouse is to the left
-                Move right if highlighting[1] is to the right and if mouse is to the right
-            If highlighting by arrow keys
-                Move left if arrowKeyHighlighting[1] is to the left
-                Move right if arrowKeyHighlighting[1] is to the right
-            */
 
             this.ctx.save();
             this.ctx.font = this.textSize + "px sans-serif";
@@ -382,7 +384,7 @@ if(typeof TextInput === "undefined"){
             }else{
                 if(TextInput.mousePressed){
                     var insertingX = this.ctx.measureText(this.value.substring(0,this.highlighting[1])).width;// X position of insert
-                    if(TextInput.mouseX < this.x + this.width / 2){// Scrolling left with mouse
+                    if(this.mouseX < this.x + this.width / 2){// Scrolling left with mouse
                         // Check left edge of highlight
                         if(insertingX < this.scroll){
                             this.scroll = insertingX;
@@ -496,7 +498,7 @@ if(typeof TextInput === "undefined"){
                         this.ctx.save();
                         this.ctx.font = this.textSize + "px sans-serif";
                         var w = this.ctx.measureText(this.value).width;
-                        var xin = (TextInput.mouseX - this.x - this.textSize * 0.1) + this.scroll;
+                        var xin = (this.mouseX - this.x - this.textSize * 0.1) + this.scroll;
                         if(xin > w){// If user clicks to the right of the end of the text
                             this.insertingAt = this.value.length;
                         }else if(xin <= this.ctx.measureText(this.value.charAt(0)).width / 2){// If user clicks to the left of the beginning of the text
@@ -550,7 +552,7 @@ if(typeof TextInput === "undefined"){
                 this.ctx.save();
                 this.ctx.font = this.textSize + "px sans-serif";
                 var w = this.ctx.measureText(this.value).width;
-                var xin = (TextInput.mouseX - this.x - this.textSize * 0.1) + this.scroll;
+                var xin = (this.mouseX - this.x - this.textSize * 0.1) + this.scroll;
                 if(xin > w){// If user clicks to the right of the end of the text
                     this.highlighting[1] = this.value.length;
                 }else if(xin <= this.ctx.measureText(this.value.charAt(0)).width / 2){// If user clicks to the left of the beginning of the text
@@ -595,7 +597,7 @@ if(typeof TextInput === "undefined"){
             }
         }
         isMouseInside(){
-            return(TextInput.mouseX > this.x && TextInput.mouseX < this.x + this.width && TextInput.mouseY > this.y && TextInput.mouseY < this.y + this.height);
+            return(this.mouseX > this.x && this.mouseX < this.x + this.width && this.mouseY > this.y && this.mouseY < this.y + this.height);
         }
         onselect(){
 
