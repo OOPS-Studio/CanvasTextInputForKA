@@ -8,17 +8,11 @@
         }
         
         TextInput.ctx = (0,eval)("document.getElementById('output-canvas')").getContext("2d");
-        TextInput.mouseX = 0;
-        TextInput.mouseY = 0;
         TextInput.mouseClicked = false;
         TextInput.mousePressed = false;
         TextInput.mouseMoved = false;
         TextInput.holdingShift = false;
         TextInput.holdingControl = false;
-        TextInput.giveMouseData = function(x,y){
-            TextInput.mouseX = x;
-            TextInput.mouseY = y;
-        };
         TextInput.requestingHover = false;
         TextInput.nextFrame = function(){
             TextInput.requestingHover = false;
@@ -80,7 +74,7 @@
         this.scroll = 0;
         this.alignScroll = undefined;
     
-        this.placeholder = "Testing";
+        this.placeholder = "";
         this.highlightAllTextWhenSelected = false;
     
         this.style = {
@@ -372,7 +366,7 @@
         }else{
             if(TextInput.mousePressed){
                 var insertingX = this.ctx.measureText(this.value.substring(0,this.highlighting[1])).width;
-                if(TextInput.mouseX < this.x + this.width / 2){
+                if(mouseX < this.x + this.width / 2){
                     if(insertingX < this.scroll){
                         this.scroll = insertingX;
                     }
@@ -482,7 +476,7 @@
                     this.ctx.save();
                     this.ctx.font = this.textSize + "px sans-serif";
                     var w = this.ctx.measureText(this.value).width;
-                    var xin = (TextInput.mouseX - this.x - this.textSize * 0.1) + this.scroll;
+                    var xin = (mouseX - this.x - this.textSize * 0.1) + this.scroll;
                     if(xin > w){
                         this.insertingAt = this.value.length;
                     }else if(xin <= this.ctx.measureText(this.value.charAt(0)).width / 2){
@@ -531,7 +525,7 @@
             this.ctx.save();
             this.ctx.font = this.textSize + "px sans-serif";
             var w = this.ctx.measureText(this.value).width;
-            var xin = (TextInput.mouseX - this.x - this.textSize * 0.1) + this.scroll;
+            var xin = (mouseX - this.x - this.textSize * 0.1) + this.scroll;
             if(xin > w){
                 this.highlighting[1] = this.value.length;
             }else if(xin <= this.ctx.measureText(this.value.charAt(0)).width / 2){
@@ -576,7 +570,7 @@
         }
     };
     TextInput.prototype.isMouseInside = function(){
-        return(TextInput.mouseX > this.x && TextInput.mouseX < this.x + this.width && TextInput.mouseY > this.y && TextInput.mouseY < this.y + this.height);
+        return(mouseX > this.x && mouseX < this.x + this.width && mouseY > this.y && mouseY < this.y + this.height);
     };
     TextInput.prototype.onselect = function(){
     
@@ -615,4 +609,4 @@
         }
         return(this);
     };
-}// Imports OOPS! Studio!'s Text Input library from [ https://github.com/OOPS-Studio/CanvasTextInputForKA ]
+}// Imports OOPS! Studio!'s Text Input library from [ https://cutt.ly/ZbUexCL ]
