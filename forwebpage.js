@@ -1,7 +1,5 @@
 var TextInput;
 
-var hello = "This worked!";
-
 if(typeof TextInput === "undefined"){
     TextInput = class{
         static mouseX = 0;
@@ -34,7 +32,7 @@ if(typeof TextInput === "undefined"){
                 r2 = TextInput.restrain(r2,0,h / 2);
                 r3 = TextInput.restrain(r3,0,h / 2);
                 r4 = TextInput.restrain(r4,0,h / 2);
-            }else{// If width is smaller than or equal to height
+            }else{
                 r1 = TextInput.restrain(r1,0,w / 2);
                 r2 = TextInput.restrain(r2,0,w / 2);
                 r3 = TextInput.restrain(r3,0,w / 2);
@@ -59,7 +57,7 @@ if(typeof TextInput === "undefined"){
             this.y = y;
             this.width = 150;
             this.height = 0;
-            this.textSize = 15;// 15 is default
+            this.textSize = 15;
             
             this.mouseX = 0;
             this.mouseY = 0;
@@ -69,7 +67,7 @@ if(typeof TextInput === "undefined"){
             this.blinkCounter = 0;
             this.insertingAt = 0;
             this.highlighting = false;
-            this.arrowKeyHighlightingOrigin = false;// The first item is always the origin point, the second item is always the point being moved.
+            this.arrowKeyHighlightingOrigin = false;
             this.undos = [];
             this.undoIndex = 0;
             this.undoneValue = false;
@@ -145,8 +143,8 @@ if(typeof TextInput === "undefined"){
                 TextInput.mouseMoved = true;
             });
             
-            canvas.addEventListener("mousemove",e => {
-                let rect = e.target.getBoundingClientRect();
+            document.addEventListener("mousemove",e => {
+                let rect = canvas.getBoundingClientRect();
                 this.mouseX = Math.round(e.clientX - rect.left)
                 this.mouseY = Math.round(e.clientY - rect.top);
             });
@@ -323,7 +321,7 @@ if(typeof TextInput === "undefined"){
                         }
                     }
                     this.blinkCounter = 0;
-                }else if(TextInput.IGNORE_LIST.indexOf(key) === -1){// If it's not a special key
+                }else if(TextInput.IGNORE_LIST.indexOf(key) === -1){
                     if(TextInput.holdingControl){
                         if(key === "a"){
                             this.highlighting = [0,this.value.length];
@@ -371,7 +369,7 @@ if(typeof TextInput === "undefined"){
             this.ctx.save();
             this.ctx.font = this.textSize + "px sans-serif";
             if(!this.highlighting){
-                var insertingX = this.ctx.measureText(this.value.substring(0,this.insertingAt)).width;// X position of insert
+                var insertingX = this.ctx.measureText(this.value.substring(0,this.insertingAt)).width;
                 var fullTextWidth = this.ctx.measureText(this.value).width;
                 var rightEdge = this.width - this.textSize * 0.1;
                 if(fullTextWidth < rightEdge + this.scroll){
@@ -383,26 +381,22 @@ if(typeof TextInput === "undefined"){
                 }
             }else{
                 if(TextInput.mousePressed){
-                    var insertingX = this.ctx.measureText(this.value.substring(0,this.highlighting[1])).width;// X position of insert
-                    if(this.mouseX < this.x + this.width / 2){// Scrolling left with mouse
-                        // Check left edge of highlight
+                    var insertingX = this.ctx.measureText(this.value.substring(0,this.highlighting[1])).width;
+                    if(this.mouseX < this.x + this.width / 2){
                         if(insertingX < this.scroll){
                             this.scroll = insertingX;
                         }
                     }else{
-                        // Check right edge of highlight
                         var rightEdge = this.width - this.textSize * 0.1;
                         if(insertingX > rightEdge + this.scroll){
                             this.scroll = insertingX - rightEdge;
                         }
                     }
-                }else if(this.arrowKeyHighlightingOrigin){// Arrow key scrolling while holding shift
-                    var insertingX = this.ctx.measureText(this.value.substring(0,this.arrowKeyHighlightingOrigin[1])).width;// X position of insert
-                    // Check left edge of highlight
+                }else if(this.arrowKeyHighlightingOrigin){
+                    var insertingX = this.ctx.measureText(this.value.substring(0,this.arrowKeyHighlightingOrigin[1])).width;
                     if(insertingX < this.scroll){
                         this.scroll = insertingX;
                     }
-                    // Check right edge of highlight
                     var rightEdge = this.width - this.textSize * 0.1;
                     if(insertingX > rightEdge + this.scroll){
                         this.scroll = insertingX - rightEdge;
@@ -434,18 +428,18 @@ if(typeof TextInput === "undefined"){
             }
             this.ctx.clip();
             if(this.highlighting){
-                var dir = true;// Right
+                var dir = true;
                 if(this.highlighting[1] < this.highlighting[0]){
-                    dir = false;// Left
+                    dir = false;
                 }
                 this.ctx.fillStyle = this.style.highlightColor;
-                if(dir){// Right
+                if(dir){
                     this.ctx.fillRect(this.x + this.textSize * 0.1 + this.ctx.measureText(this.value.substring(0,this.highlighting[0])).width - this.scroll,this.y,this.ctx.measureText(this.value.substring(this.highlighting[0],this.highlighting[1])).width,this.height);
                 }else{
                     this.ctx.fillRect(this.x + this.textSize * 0.1 + this.ctx.measureText(this.value.substring(0,this.highlighting[0])).width - this.scroll,this.y,-this.ctx.measureText(this.value.substring(this.highlighting[0],this.highlighting[1])).width,this.height);
                 }
             }
-            if(this.value === ""){// Display placeholder
+            if(this.value === ""){
                 this.ctx.fillStyle = this.style.placeholderColor;
                 this.ctx.fillText(this.placeholder,this.x + this.textSize * 0.1,this.y + this.height * 0.79);
             }else{
@@ -499,34 +493,29 @@ if(typeof TextInput === "undefined"){
                         this.ctx.font = this.textSize + "px sans-serif";
                         var w = this.ctx.measureText(this.value).width;
                         var xin = (this.mouseX - this.x - this.textSize * 0.1) + this.scroll;
-                        if(xin > w){// If user clicks to the right of the end of the text
+                        if(xin > w){
                             this.insertingAt = this.value.length;
-                        }else if(xin <= this.ctx.measureText(this.value.charAt(0)).width / 2){// If user clicks to the left of the beginning of the text
+                        }else if(xin <= this.ctx.measureText(this.value.charAt(0)).width / 2){
                             this.insertingAt = 0;
                         }else{
-                            // Approximate mouse position in string
-                            // Find out if it is to the right of left of approximation
-                            // Move in direction
-                            // Check again
-                            // Repeat until value switches from one way to another, indicating that we found the spot
-                            var checking = 0;// A simple guess based on the size of the font
-                            var direction = undefined;// True is right, false is left, undefined means first iteration
+                            var checking = 0;
+                            var direction = undefined;
                             var looking = true;
                             while(looking){
-                                var w = this.ctx.measureText(this.value.substring(0,checking)).width + this.ctx.measureText(this.value.charAt(checking)).width / 2;// Get the width of the text up until the point we're checking
-                                if(w < xin){// If the mouse is to the right of the currently checking spot
-                                    if(direction === false){// If you were moving left already, stop looking and decide they're on current spot
+                                var w = this.ctx.measureText(this.value.substring(0,checking)).width + this.ctx.measureText(this.value.charAt(checking)).width / 2;
+                                if(w < xin){
+                                    if(direction === false){
                                         looking = false;
                                         continue;
                                     }
-                                    direction = true;// Start moving right
+                                    direction = true;
                                     checking++;
                                 }else{
-                                    if(direction === true){// If you were moving left already, stop looking and decide they're on current spot
+                                    if(direction === true){
                                         looking = false;
                                         continue;
                                     }
-                                    direction = false;// Start moving left
+                                    direction = false;
                                     checking--;
                                 }
                             }
@@ -553,29 +542,29 @@ if(typeof TextInput === "undefined"){
                 this.ctx.font = this.textSize + "px sans-serif";
                 var w = this.ctx.measureText(this.value).width;
                 var xin = (this.mouseX - this.x - this.textSize * 0.1) + this.scroll;
-                if(xin > w){// If user clicks to the right of the end of the text
+                if(xin > w){
                     this.highlighting[1] = this.value.length;
-                }else if(xin <= this.ctx.measureText(this.value.charAt(0)).width / 2){// If user clicks to the left of the beginning of the text
+                }else if(xin <= this.ctx.measureText(this.value.charAt(0)).width / 2){
                     this.highlighting[1] = 0;
                 }else{
-                    var checking = 0;// A simple guess based on the size of the font
-                    var direction = undefined;// True is right, false is left, undefined means first iteration
+                    var checking = 0;
+                    var direction = undefined;
                     var looking = true;
                     while(looking){
-                        var w = this.ctx.measureText(this.value.substring(0,checking)).width + this.ctx.measureText(this.value.charAt(checking)).width / 2;// Get the width of the text up until the point we're checking
-                        if(w < xin){// If the mouse is to the right of the currently checking spot
-                            if(direction === false){// If you were moving left already, stop looking and decide they're on current spot
+                        var w = this.ctx.measureText(this.value.substring(0,checking)).width + this.ctx.measureText(this.value.charAt(checking)).width / 2;
+                        if(w < xin){
+                            if(direction === false){
                                 looking = false;
                                 continue;
                             }
-                            direction = true;// Start moving right
+                            direction = true;
                             checking++;
                         }else{
-                            if(direction === true){// If you were moving left already, stop looking and decide they're on current spot
+                            if(direction === true){
                                 looking = false;
                                 continue;
                             }
-                            direction = false;// Start moving left
+                            direction = false;
                             checking--;
                         }
                     }
