@@ -449,7 +449,7 @@ if(typeof TextInput === "undefined"){
                 }
                 this.ctx.fillStyle = this.style.highlightColor;
                 if(dir){
-                    this.ctx.fillRect(this.x + this.textSize * 0.1 + this.ctx.measureText(this.value.substring(0,this.highlighting[0])).width - this.scroll,this.y,this.ctx.measureText(this.value.substring(this.highlighting[0],this.highlighting[1])).width,this.height);
+                    this.ctx.fillRect(this.x + this.textSize * 0.1 + (this.ctx.measureText(this.value.substring(0,this.highlighting[0] + 1)).width - this.ctx.measureText(this.value.charAt(this.highlighting[0])).width) - this.scroll,this.y,this.ctx.measureText(this.value.substring(this.highlighting[0],this.highlighting[1])).width,this.height);
                 }else{
                     this.ctx.fillRect(this.x + this.textSize * 0.1 + this.ctx.measureText(this.value.substring(0,this.highlighting[0])).width - this.scroll,this.y,-this.ctx.measureText(this.value.substring(this.highlighting[0],this.highlighting[1])).width,this.height);
                 }
@@ -463,7 +463,7 @@ if(typeof TextInput === "undefined"){
                 }else{
                     this.ctx.fillStyle = this.style.textColor;
                 }
-                if(this.highlighting){
+                if(this.highlighting && this.highlighting[0] !== this.highlighting[1]){
                     var p1 = this.highlighting[0] < this.highlighting[1] ? this.highlighting[0] : this.highlighting[1];
                     var p2 = this.highlighting[0] < this.highlighting[1] ? this.highlighting[1] : this.highlighting[0];
                     var textChunks = [this.value.substring(0,p1),this.value.substring(p1,p2),this.value.substring(p2,this.value.length)];
