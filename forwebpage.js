@@ -148,6 +148,12 @@ if(typeof TextInput === "undefined"){
                 this.mouseX = Math.round(e.clientX - rect.left)
                 this.mouseY = Math.round(e.clientY - rect.top);
             });
+            
+            document.addEventListener("visibilitychange",e => {
+                TextInput.holdingControl = false;
+                TextInput.holdingShift = false;
+                TextInput.mousePressed = false;
+            });
         }
         setValue(newValue){
             if(this.undoIndex < this.undos.length){
@@ -328,12 +334,21 @@ if(typeof TextInput === "undefined"){
                             this.arrowKeyHighlightingOrigin = [0,this.value.length];
                         }else if(key === "c" && this.highlighting){
                             alert("Khan Academy blocks access to Clipboard. Copying text is only available off of KA.\nPlease visit https://cutt.ly/FbYS8Gd for a full page of information about why and how KA blocks the use of Clipboard.");
+                            TextInput.holdingControl = false;
+                            TextInput.holdingShift = false;
+                            TextInput.mousePressed = false;
                             this.oncopy();
                         }else if(key === "x" && this.highlighting){
                             alert("Khan Academy blocks access to Clipboard. Cutting text is only available off of KA.\nPlease visit https://cutt.ly/FbYS8Gd for a full page of information about why and how KA blocks the use of Clipboard.");
+                            TextInput.holdingControl = false;
+                            TextInput.holdingShift = false;
+                            TextInput.mousePressed = false;
                             this.oncopy();
                         }else if(key === "v"){
                             alert("Khan Academy blocks access to Clipboard. Pasting text is only available off of KA.\nPlease visit https://cutt.ly/FbYS8Gd for a full page of information about why and how KA blocks the use of Clipboard.");
+                            TextInput.holdingControl = false;
+                            TextInput.holdingShift = false;
+                            TextInput.mousePressed = false;
                             this.onpaste();
                         }else if(key === "z"){
                             this.undo();
@@ -452,9 +467,9 @@ if(typeof TextInput === "undefined"){
                     var p1 = this.highlighting[0] < this.highlighting[1] ? this.highlighting[0] : this.highlighting[1];
                     var p2 = this.highlighting[0] < this.highlighting[1] ? this.highlighting[1] : this.highlighting[0];
                     var textChunks = [this.value.substring(0,p1),this.value.substring(p1,p2),this.value.substring(p2,this.value.length)];
-                    var highlightingX = this.ctx.measureText(textChunks[0]).width;
+                    var highlightingX = this.ctx.measureText(textChunks[0] + textChunks[1].charAt(0)).width - this.ctx.measureText(textChunks[1].charAt(0)).width;
                     this.ctx.fillText(textChunks[0],this.x + this.textSize * 0.1 - this.scroll,this.y + this.height * 0.79);
-                    this.ctx.fillText(textChunks[2],this.x + this.textSize * 0.1 + highlightingX + this.ctx.measureText(textChunks[1]).width - this.scroll,this.y + this.height * 0.79);
+                    this.ctx.fillText(textChunks[2],this.x + this.textSize * 0.1 + highlightingX + (this.ctx.measureText(textChunks[1] + textChunks[2].charAt(0)).width - this.ctx.measureText(textChunks[2].charAt(0)).width) - this.scroll,this.y + this.height * 0.79);
                     this.ctx.fillStyle = this.style.highlightedTextColor;
                     this.ctx.fillText(textChunks[1],this.x + this.textSize * 0.1 + highlightingX - this.scroll,this.y + this.height * 0.79);
                 }else{
