@@ -119,6 +119,7 @@ if(typeof TextInput === "undefined"){
                 this.handleKeypress(e.key);
                 if(this.selected){
                     this.onkeypress(e.key);
+                    e.preventDefault();
                 }
             });
             document.addEventListener("keyup",e => {
