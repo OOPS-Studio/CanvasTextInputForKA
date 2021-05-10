@@ -424,7 +424,7 @@
             }
             this.ctx.fillStyle = this.style.highlightColor;
             if(dir){
-                this.ctx.fillRect(this.x + this.textSize * 0.1 + this.ctx.measureText(this.value.substring(0,this.highlighting[0])).width - this.scroll,this.y,this.ctx.measureText(this.value.substring(this.highlighting[0],this.highlighting[1])).width,this.height);
+                this.ctx.fillRect(this.x + this.textSize * 0.1 + (this.ctx.measureText(this.value.substring(0,this.highlighting[0] + 1)).width - this.ctx.measureText(this.value.charAt(this.highlighting[0])).width) - this.scroll,this.y,this.ctx.measureText(this.value.substring(this.highlighting[0],this.highlighting[1])).width,this.height);
             }else{
                 this.ctx.fillRect(this.x + this.textSize * 0.1 + this.ctx.measureText(this.value.substring(0,this.highlighting[0])).width - this.scroll,this.y,-this.ctx.measureText(this.value.substring(this.highlighting[0],this.highlighting[1])).width,this.height);
             }
@@ -438,15 +438,15 @@
             }else{
                 this.ctx.fillStyle = this.style.textColor;
             }
-            if(this.highlighting){
+            if(this.highlighting && this.highlighting[0] !== this.highlighting[1]){
                 var p1 = this.highlighting[0] < this.highlighting[1] ? this.highlighting[0] : this.highlighting[1];
-                    var p2 = this.highlighting[0] < this.highlighting[1] ? this.highlighting[1] : this.highlighting[0];
-                    var textChunks = [this.value.substring(0,p1),this.value.substring(p1,p2),this.value.substring(p2,this.value.length)];
-                    var highlightingX = this.ctx.measureText(textChunks[0] + textChunks[1].charAt(0)).width - this.ctx.measureText(textChunks[1].charAt(0)).width;
-                    this.ctx.fillText(textChunks[0],this.x + this.textSize * 0.1 - this.scroll,this.y + this.height * 0.79);
-                    this.ctx.fillText(textChunks[2],this.x + this.textSize * 0.1 + highlightingX + (this.ctx.measureText(textChunks[1] + textChunks[2].charAt(0)).width - this.ctx.measureText(textChunks[2].charAt(0)).width) - this.scroll,this.y + this.height * 0.79);
-                    this.ctx.fillStyle = this.style.highlightedTextColor;
-                    this.ctx.fillText(textChunks[1],this.x + this.textSize * 0.1 + highlightingX - this.scroll,this.y + this.height * 0.79);
+                var p2 = this.highlighting[0] < this.highlighting[1] ? this.highlighting[1] : this.highlighting[0];
+                var textChunks = [this.value.substring(0,p1),this.value.substring(p1,p2),this.value.substring(p2,this.value.length)];
+                var highlightingX = this.ctx.measureText(textChunks[0] + textChunks[1].charAt(0)).width - this.ctx.measureText(textChunks[1].charAt(0)).width;
+                this.ctx.fillText(textChunks[0],this.x + this.textSize * 0.1 - this.scroll,this.y + this.height * 0.79);
+                this.ctx.fillText(textChunks[2],this.x + this.textSize * 0.1 + highlightingX + (this.ctx.measureText(textChunks[1] + textChunks[2].charAt(0)).width - this.ctx.measureText(textChunks[2].charAt(0)).width) - this.scroll,this.y + this.height * 0.79);
+                this.ctx.fillStyle = this.style.highlightedTextColor;
+                this.ctx.fillText(textChunks[1],this.x + this.textSize * 0.1 + highlightingX - this.scroll,this.y + this.height * 0.79);
             }else{
                 this.ctx.fillText(this.value,this.x + this.textSize * 0.1 - this.scroll,this.y + this.height * 0.79);
             }
