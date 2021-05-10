@@ -116,6 +116,7 @@
             me.handleKeypress(e.key);
             if(me.selected){
                 me.onkeypress(e.key);
+                e.preventDefault();
             }
         });
         doc.addEventListener("keyup",function(e){
