@@ -150,7 +150,7 @@ if(typeof TextInput === "undefined"){
                 this.mouseY = Math.round(e.clientY - rect.top);
             });
             
-            document.addEventListener("visibilitychange",e => {
+            document.addEventListener("visibilitychange",function(){
                 TextInput.holdingControl = false;
                 TextInput.holdingShift = false;
                 TextInput.mousePressed = false;
