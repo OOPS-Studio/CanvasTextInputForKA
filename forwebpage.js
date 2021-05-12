@@ -638,9 +638,15 @@ if(typeof TextInput === "undefined"){
                     for(var j = 0;j < keys2.length;j++){
                         if(keys2[j] === "padding"){
                             var cross = ["Top","Right","Bottom","Left"];
-                            for(var k = 0;k < obj.onSelect.padding.length;k++){
-                                if(obj.padding[k] !== false){
-                                    this.style.onSelect["padding" + cross[k]] = obj.onSelect.padding[k];
+                            if(typeof obj.onSelect.padding === "number"){
+                                for(var k = 0;k < 4;k++){
+                                    this.style.onSelect["padding" + cross[k]] = obj.onSelect.padding;
+                                }
+                            }else{
+                                for(var k = 0;k < obj.onSelect.padding.length;k++){
+                                    if(obj.onSelect.padding[k] !== false){
+                                        this.style.onSelect["padding" + cross[k]] = obj.onSelect.padding[k];
+                                    }
                                 }
                             }
                         }
@@ -648,9 +654,15 @@ if(typeof TextInput === "undefined"){
                     }
                 }else if(keys[i] === "padding"){
                     var cross = ["Top","Right","Bottom","Left"];
-                    for(var j = 0;j < obj.padding.length;j++){
-                        if(obj.padding[j] !== false){
-                            this.style["padding" + cross[j]] = obj.padding[j];
+                    if(typeof obj.padding === "number"){
+                        for(var j = 0;j < 4;j++){
+                            this.style["padding" + cross[j]] = obj.padding;
+                        }
+                    }else{
+                        for(var j = 0;j < obj.padding.length;j++){
+                            if(obj.padding[j] !== false){
+                                this.style["padding" + cross[j]] = obj.padding[j];
+                            }
                         }
                     }
                 }else if(typeof this.style[keys[i]] !== "undefined"){
