@@ -17,6 +17,7 @@ if(typeof TextInput === "undefined"){
             TextInput.mouseMoved = false;
             TextInput.frameCounter++;
         }
+        static clipboard = "";
         static IGNORE_LIST = ["Control","Alt","Shift","Enter","Escape","CapsLock","Meta","PageUp","PageDown","F1","F2","F3","F4","F5","F6","F7","F8","F9","F10","F11","F12","Home","End","Insert","Tab"];
         static restrain(val,min,max){
             return(val < min ? min : (val > max ? max : val));
@@ -150,7 +151,7 @@ if(typeof TextInput === "undefined"){
                 this.mouseY = Math.round(e.clientY - rect.top);
             });
             
-            document.addEventListener("visibilitychange",function(){
+            document.addEventListener("visibilitychange",e => {
                 TextInput.holdingControl = false;
                 TextInput.holdingShift = false;
                 TextInput.mousePressed = false;
@@ -334,23 +335,23 @@ if(typeof TextInput === "undefined"){
                             this.highlighting = [0,this.value.length];
                             this.arrowKeyHighlightingOrigin = [0,this.value.length];
                         }else if(key === "c" && this.highlighting){
-                            alert("Khan Academy blocks access to Clipboard. Copying text is only available off of KA.\nPlease visit https://cutt.ly/FbYS8Gd for a full page of information about why and how KA blocks the use of Clipboard.");
-                            TextInput.holdingControl = false;
-                            TextInput.holdingShift = false;
-                            TextInput.mousePressed = false;
+                            TextInput.clipboard = this.value.substring(this.highlighting[0],this.highlighting[1]);
                             this.oncopy();
                         }else if(key === "x" && this.highlighting){
-                            alert("Khan Academy blocks access to Clipboard. Cutting text is only available off of KA.\nPlease visit https://cutt.ly/FbYS8Gd for a full page of information about why and how KA blocks the use of Clipboard.");
-                            TextInput.holdingControl = false;
-                            TextInput.holdingShift = false;
-                            TextInput.mousePressed = false;
+                            TextInput.clipboard = this.value.substring(this.highlighting[0],this.highlighting[1]);
+                            this.insertingAt = this.highlighting[0];
+                            this.setValue(this.value.substring(0,this.highlighting[0]) + this.value.substring(this.highlighting[1],this.value.length));
+                            this.highlighting = false;
                             this.oncopy();
                         }else if(key === "v"){
-                            alert("Khan Academy blocks access to Clipboard. Pasting text is only available off of KA.\nPlease visit https://cutt.ly/FbYS8Gd for a full page of information about why and how KA blocks the use of Clipboard.");
-                            TextInput.holdingControl = false;
-                            TextInput.holdingShift = false;
-                            TextInput.mousePressed = false;
-                            this.onpaste();
+                            if(this.highlighting){
+                                this.setValue(this.value.substring(0,this.highlighting[0]) + this.value.substring(this.highlighting[1],this.value.length));
+                                this.insertingAt = this.highlighting[0];
+                                this.highlighting = false;
+                            }
+                            this.value = this.value.substring(0,this.insertingAt) + TextInput.clipboard + this.value.substring(this.insertingAt,this.value.length);
+                            this.insertingAt += TextInput.clipboard.length;
+                            this.onpaste(true);
                         }else if(key === "z"){
                             this.undo();
                         }else if(key === "y"){
