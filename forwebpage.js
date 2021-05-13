@@ -176,7 +176,6 @@ if(typeof TextInput === "undefined"){
                     this.highlighting = [];
                     var alphabet = "abcdefghijklmnopqrstuvwxyz-'";
                     var startingCharacter = this.value.charAt(mouseIndex).toLowerCase();
-                    console.log(startingCharacter);
                     var val = this.value.toLowerCase();
                     var type = alphabet.indexOf(startingCharacter) !== -1 ? 0 : (startingCharacter === " " ? 1 : 2);
                     if(mouseIndex === val.length){
@@ -212,7 +211,6 @@ if(typeof TextInput === "undefined"){
                     }else{
                         this.highlighting[1] = val.length;
                     }
-                    console.log(this.highlighting);
                     this.ctx.restore();
                 }else if(e.detail === 3 && this.selected){
                     this.highlighting = [0,this.value.length];
