@@ -100,7 +100,8 @@
                 paddingLeft: false,
                 paddingRight: false,
                 paddingTop: false,
-                paddingBottom: false
+                paddingBottom: false,
+                placeholderColor: false
             }
         };
 
@@ -132,8 +133,90 @@
             }
         });
         doc.addEventListener("mousedown",function(e){
-            TextInput.mouseClicked = true;
-            TextInput.mousePressed = true;
+            if(me.processingPaste){
+                return;
+            }
+            if(e.detail === 2 && me.selected){
+                var mouseIndex = 0;
+                me.ctx.save();
+                me.ctx.font = me.textSize + "px sans-serif";
+                var w = me.ctx.measureText(me.value).width;
+                var xin = (mouseX - me.x - me.textSize * 0.1) + me.scroll;
+                if(xin > w){
+                    mouseIndex = me.value.length;
+                }else if(xin <= me.ctx.measureText(me.value.charAt(0)).width / 2){
+                    mouseIndex = 0;
+                }else{
+                    var checking = 0;
+                    var direction;
+                    var looking = true;
+                    while(looking){
+                        var w = me.ctx.measureText(me.value.substring(0,checking)).width + me.ctx.measureText(me.value.charAt(checking)).width / 2;
+                        if(w < xin){
+                            if(direction === false){
+                                looking = false;
+                                continue;
+                            }
+                            direction = true;
+                            checking++;
+                        }else{
+                            if(direction === true){
+                                looking = false;
+                                continue;
+                            }
+                            direction = false;
+                            checking--;
+                        }
+                    }
+                    mouseIndex = checking;
+                }
+                me.highlighting = [];
+                var alphabet = "abcdefghijklmnopqrstuvwxyz-'";
+                var startingCharacter = me.value.charAt(mouseIndex).toLowerCase();
+                var val = me.value.toLowerCase();
+                var type = alphabet.indexOf(startingCharacter) !== -1 ? 0 : (startingCharacter === " " ? 1 : 2);
+                if(mouseIndex === val.length){
+                    mouseIndex--;
+                    startingCharacter = me.value.charAt(mouseIndex).toLowerCase();
+                    type = alphabet.indexOf(startingCharacter) !== -1 ? 0 : (startingCharacter === " " ? 1 : 2);
+                }else if(mouseIndex === 0){
+                    mouseIndex++;
+                    startingCharacter = me.value.charAt(mouseIndex).toLowerCase();
+                    type = alphabet.indexOf(startingCharacter) !== -1 ? 0 : (startingCharacter === " " ? 1 : 2);
+                }
+                for(var i = mouseIndex - 1;i >= 0;i--){
+                    if(i === 0){
+                        me.highlighting[0] = 0;
+                        break;
+                    }
+                    if((alphabet.indexOf(val.charAt(i).toLowerCase()) !== -1 ? 0 : (val.charAt(i) === " " ? 1 : 2)) !== type){
+                        me.highlighting[0] = i + 1;
+                        break;
+                    }
+                }
+                if(mouseIndex < val.length){
+                    for(var i = mouseIndex + 1;i < val.length + 1;i++){
+                        if(i === val.length){
+                            me.highlighting[1] = val.length;
+                            break;
+                        }
+                        if((alphabet.indexOf(val.charAt(i).toLowerCase()) !== -1 ? 0 : (val.charAt(i) === " " ? 1 : 2)) !== type){
+                            me.highlighting[1] = i;
+                            break;
+                        }
+                    }
+                }else{
+                    me.highlighting[1] = val.length;
+                }
+                me.ctx.restore();
+            }else if(e.detail === 3 && me.selected){
+                me.highlighting = [0,me.value.length];
+                me.arrowKeyHighlightingOrigin = [0,me.value.length];
+            }
+            if(e.detail === 1){
+                TextInput.mouseClicked = true;
+                TextInput.mousePressed = true;
+            }
         });
         doc.addEventListener("mouseup",function(e){
             TextInput.mousePressed = false;
@@ -444,7 +527,11 @@
             }
         }
         if(this.value === ""){
-            this.ctx.fillStyle = this.style.placeholderColor;
+            if(!this.selected){
+                this.ctx.fillStyle = this.style.placeholderColor;
+            }else{
+                this.ctx.fillStyle = this.solveSelectedStyle("placeholderColor");
+            }
             this.ctx.fillText(this.placeholder,this.x + this.textSize * 0.1,this.y + this.height * 0.79);
         }else{
             if(this.selected){
@@ -467,10 +554,10 @@
         }
         if(this.selected && !this.highlighting){
             this.blinkCounter++;
-            if(this.blinkCounter > 100){
+            if(this.blinkCounter > 80){
                 this.blinkCounter = 0;
             }
-            if(this.blinkCounter < 50){
+            if(this.blinkCounter < 40){
                 if(this.selected){
                     this.ctx.strokeStyle = this.solveSelectedStyle("textColor");
                 }else{
@@ -619,12 +706,12 @@
     };
     TextInput.prototype.setStyle = function(obj){
         var keys = Object.keys(obj);
+        var cross = ["Top","Right","Bottom","Left"];
         for(var i = 0;i < keys.length;i++){
             if(keys[i] === "onSelect"){
                 var keys2 = Object.keys(obj.onSelect);
                 for(var j = 0;j < keys2.length;j++){
                     if(keys2[j] === "padding"){
-                        var cross = ["Top","Right","Bottom","Left"];
                         if(typeof obj.onSelect.padding === "number"){
                             for(var k = 0;k < 4;k++){
                                 this.style.onSelect["padding" + cross[k]] = obj.onSelect.padding;
@@ -640,7 +727,6 @@
                     this.style.onSelect[keys2[j]] = obj.onSelect[keys2[j]];
                 }
             }else if(keys[i] === "padding"){
-                var cross = ["Top","Right","Bottom","Left"];
                 if(typeof obj.padding === "number"){
                     for(var j = 0;j < 4;j++){
                         this.style["padding" + cross[j]] = obj.padding;
