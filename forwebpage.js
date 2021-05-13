@@ -101,7 +101,8 @@ if(typeof TextInput === "undefined"){
                     paddingLeft: false,
                     paddingRight: false,
                     paddingTop: false,
-                    paddingBottom: false
+                    paddingBottom: false,
+                    placeholderColor: false
                 }
             };
 
@@ -135,8 +136,92 @@ if(typeof TextInput === "undefined"){
                 }
             });
             document.addEventListener("mousedown",e => {
-                TextInput.mouseClicked = true;
-                TextInput.mousePressed = true;
+                if(this.processingPaste){
+                    return;
+                }
+                if(e.detail === 2 && this.selected){
+                    var mouseIndex = 0;
+                    this.ctx.save();
+                    this.ctx.font = this.textSize + "px sans-serif";
+                    var w = this.ctx.measureText(this.value).width;
+                    var xin = (this.mouseX - this.x - this.textSize * 0.1) + this.scroll;
+                    if(xin > w){
+                        mouseIndex = this.value.length;
+                    }else if(xin <= this.ctx.measureText(this.value.charAt(0)).width / 2){
+                        mouseIndex = 0;
+                    }else{
+                        var checking = 0;
+                        var direction = undefined;
+                        var looking = true;
+                        while(looking){
+                            var w = this.ctx.measureText(this.value.substring(0,checking)).width + this.ctx.measureText(this.value.charAt(checking)).width / 2;
+                            if(w < xin){
+                                if(direction === false){
+                                    looking = false;
+                                    continue;
+                                }
+                                direction = true;
+                                checking++;
+                            }else{
+                                if(direction === true){
+                                    looking = false;
+                                    continue;
+                                }
+                                direction = false;
+                                checking--;
+                            }
+                        }
+                        mouseIndex = checking;
+                    }
+                    this.highlighting = [];
+                    var alphabet = "abcdefghijklmnopqrstuvwxyz-'";
+                    var startingCharacter = this.value.charAt(mouseIndex).toLowerCase();
+                    console.log(startingCharacter);
+                    var val = this.value.toLowerCase();
+                    var type = alphabet.indexOf(startingCharacter) !== -1 ? 0 : (startingCharacter === " " ? 1 : 2);
+                    if(mouseIndex === val.length){
+                        mouseIndex--;
+                        startingCharacter = this.value.charAt(mouseIndex).toLowerCase();
+                        type = alphabet.indexOf(startingCharacter) !== -1 ? 0 : (startingCharacter === " " ? 1 : 2);
+                    }else if(mouseIndex === 0){
+                        mouseIndex++;
+                        startingCharacter = this.value.charAt(mouseIndex).toLowerCase();
+                        type = alphabet.indexOf(startingCharacter) !== -1 ? 0 : (startingCharacter === " " ? 1 : 2);
+                    }
+                    for(var i = mouseIndex - 1;i >= 0;i--){
+                        if(i === 0){
+                            this.highlighting[0] = 0;
+                            break;
+                        }
+                        if((alphabet.indexOf(val.charAt(i).toLowerCase()) !== -1 ? 0 : (val.charAt(i) === " " ? 1 : 2)) !== type){
+                            this.highlighting[0] = i + 1;
+                            break;
+                        }
+                    }
+                    if(mouseIndex < val.length){
+                        for(var i = mouseIndex + 1;i < val.length + 1;i++){
+                            if(i === val.length){
+                                this.highlighting[1] = val.length;
+                                break;
+                            }
+                            if((alphabet.indexOf(val.charAt(i).toLowerCase()) !== -1 ? 0 : (val.charAt(i) === " " ? 1 : 2)) !== type){
+                                this.highlighting[1] = i;
+                                break;
+                            }
+                        }
+                    }else{
+                        this.highlighting[1] = val.length;
+                    }
+                    console.log(this.highlighting);
+                    this.ctx.restore();
+                }else if(e.detail === 3 && this.selected){
+                    this.highlighting = [0,this.value.length];
+                    this.arrowKeyHighlightingOrigin = [0,this.value.length];
+                }
+                if(e.detail === 1){
+                    TextInput.mouseClicked = true;
+                    TextInput.mousePressed = true;
+                }
             });
             document.addEventListener("mouseup",e => {
                 TextInput.mousePressed = false;
@@ -146,7 +231,7 @@ if(typeof TextInput === "undefined"){
             });
             
             document.addEventListener("mousemove",e => {
-                let rect = canvas.getBoundingClientRect();
+                var rect = canvas.getBoundingClientRect();
                 this.mouseX = Math.round(e.clientX - rect.left)
                 this.mouseY = Math.round(e.clientY - rect.top);
             });
@@ -457,7 +542,11 @@ if(typeof TextInput === "undefined"){
                 }
             }
             if(this.value === ""){
-                this.ctx.fillStyle = this.style.placeholderColor;
+                if(!this.selected){
+                    this.ctx.fillStyle = this.style.placeholderColor;
+                }else{
+                    this.ctx.fillStyle = this.solveSelectedStyle("placeholderColor");
+                }
                 this.ctx.fillText(this.placeholder,this.x + this.textSize * 0.1,this.y + this.height * 0.79);
             }else{
                 if(this.selected){
@@ -480,10 +569,10 @@ if(typeof TextInput === "undefined"){
             }
             if(this.selected && !this.highlighting){
                 this.blinkCounter++;
-                if(this.blinkCounter > 100){
+                if(this.blinkCounter > 80){
                     this.blinkCounter = 0;
                 }
-                if(this.blinkCounter < 50){
+                if(this.blinkCounter < 40){
                     if(this.selected){
                         this.ctx.strokeStyle = this.solveSelectedStyle("textColor");
                     }else{
@@ -632,12 +721,12 @@ if(typeof TextInput === "undefined"){
         }
         setStyle(obj){
             var keys = Object.keys(obj);
+            var cross = ["Top","Right","Bottom","Left"];
             for(var i = 0;i < keys.length;i++){
                 if(keys[i] === "onSelect"){
                     var keys2 = Object.keys(obj.onSelect);
                     for(var j = 0;j < keys2.length;j++){
                         if(keys2[j] === "padding"){
-                            var cross = ["Top","Right","Bottom","Left"];
                             if(typeof obj.onSelect.padding === "number"){
                                 for(var k = 0;k < 4;k++){
                                     this.style.onSelect["padding" + cross[k]] = obj.onSelect.padding;
@@ -653,7 +742,6 @@ if(typeof TextInput === "undefined"){
                         this.style.onSelect[keys2[j]] = obj.onSelect[keys2[j]];
                     }
                 }else if(keys[i] === "padding"){
-                    var cross = ["Top","Right","Bottom","Left"];
                     if(typeof obj.padding === "number"){
                         for(var j = 0;j < 4;j++){
                             this.style["padding" + cross[j]] = obj.padding;
