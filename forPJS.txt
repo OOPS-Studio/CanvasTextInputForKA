@@ -101,7 +101,8 @@
                 paddingRight: false,
                 paddingTop: false,
                 paddingBottom: false,
-                placeholderColor: false
+                placeholderColor: false,
+                textSize: false
             }
         };
 
